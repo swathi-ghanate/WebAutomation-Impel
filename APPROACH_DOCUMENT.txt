@@ -1,0 +1,390 @@
+WebAutomation-Impel - Approach Document
+=======================================
+
+
+1. Overview
+-----------
+
+This document outlines the architecture, design decisions, and implementation details of the WebAutomation-Impel framework -- a Maven-based Java web automation solution built with Microsoft Playwright and TestNG.
+
+The framework automates end-to-end testing for a web application that includes user login, home page navigation, and complaint creation workflows. It follows industry-standard design patterns to ensure maintainability, reusability, and scalability.
+
+
+2. Technology Stack
+-------------------
+
+Technology      Version     Purpose
+-----------     -------     -------
+Java            11+         Programming language
+Playwright      1.42.0      Browser automation library
+TestNG          7.9.0       Test execution and assertion framework
+Maven           3.x         Build and dependency management
+Chromium        Latest      Target browser (via Chrome channel)
+
+
+3. Framework Architecture
+-------------------------
+
+Folder Structure:
+
+WebAutomation-Impel/
+    pom.xml                              Maven configuration and dependencies
+    testng.xml                           TestNG suite configuration
+    APPROACH_DOCUMENT.md                 This document
+    src/
+        test/
+            java/
+                base/
+                    BaseTest.java                Setup/teardown, browser lifecycle
+                pages/
+                    LoginPage.java               Login page interactions
+                    HomePage.java                Home page navigation
+                    ComplaintPage.java           Complaint form interactions
+                tests/
+                    LoginTest.java               Login verification test
+                    HomeTest.java                Home navigation test
+                    ComplaintTest.java           Complaint creation test
+                utils/
+                    ConfigReader.java            Configuration property loader
+            resources/
+                config.properties                Environment configuration
+
+Layer Diagram:
+
++---------------------------------------------+
+|              testng.xml                      |   Suite Configuration
++---------------------------------------------+
+|   LoginTest  |  HomeTest  |  ComplaintTest   |   Test Layer
++---------------------------------------------+
+|              BaseTest                        |   Base Layer (Setup/Teardown)
++---------------------------------------------+
+|  LoginPage   |  HomePage  |  ComplaintPage   |   Page Object Layer
++---------------------------------------------+
+|          ConfigReader / config.properties     |   Utilities Layer
++---------------------------------------------+
+|          Playwright + Browser API            |   Automation Engine
++---------------------------------------------+
+
+
+4. Design Patterns Used
+-----------------------
+
+4.1 Page Object Model (POM)
+
+Each web page is represented by a dedicated Java class that encapsulates:
+
+- Locators -- stored as private final String fields at the top of the class.
+- Actions -- public methods that interact with the page elements.
+- Page reference -- a Playwright Page object passed via the constructor.
+
+Benefits:
+- Single point of maintenance when UI changes.
+- Clean separation between test logic and page interaction.
+- Reusable methods across multiple test classes.
+
+Example (LoginPage.java):
+
+    public class LoginPage {
+        private final Page page;
+        private final String usernameField = "input[name='username']";
+
+        public LoginPage(Page page) {
+            this.page = page;
+        }
+
+        public void login(String username, String password) {
+            page.fill(usernameField, username);
+            // ...
+        }
+    }
+
+4.2 Base Test Pattern
+
+A shared BaseTest class annotated with @BeforeMethod and @AfterMethod handles:
+
+- Browser lifecycle management (create/destroy per test method).
+- Common pre-conditions (navigation, login).
+- Shared protected fields accessible by all test subclasses.
+
+Benefits:
+- Eliminates duplicate setup/teardown code across tests.
+- Guarantees every test starts with a clean browser session.
+- Centralizes configuration reads.
+
+
+5. Component Descriptions
+-------------------------
+
+5.1 BaseTest.java (base package)
+
+Aspect              Detail
+------              ------
+Fields              protected Playwright playwright, Browser browser, Page page
+@BeforeMethod       Creates Playwright instance, launches Chromium via Chrome channel,
+                    reads headless config, sets 60s timeout, navigates to base URL,
+                    performs auto-login via LoginPage
+@AfterMethod        Waits 10 seconds (observation window), closes browser, closes Playwright
+
+5.2 Page Objects (pages package)
+
+LoginPage.java
+
+Method                                      Description
+------                                      -----------
+login(String username, String password)     Fills username/password, selects tenant, accepts privacy, clicks login
+
+Locators:
+- input[name='username']              username field
+- input[name='password']              password field
+- #user-login-core_common_city        tenant/city dropdown
+- .main-option                        dropdown options
+- #privacy-component-check            privacy checkbox
+- #user-login-continue                login button
+
+HomePage.java
+
+Method                          Description
+------                          -----------
+isHomeVisible()                 Waits for top bar, returns visibility
+navigateToCreateComplaint()     Clicks "Create Complaint" button
+navigateToSearchComplaint()     Clicks "Search Complaint" button
+navigateToCreateUser()          Clicks "Create User" button
+navigateToSearchUser()          Clicks "Search User" button
+
+Locators:
+- .digit-topbar-ulb                                  home page top bar element
+- h2.digit-button-label:has-text('...')              navigation buttons
+
+ComplaintPage.java
+
+Method                  Description
+------                  -----------
+fillComplaintForm()     Fills complaint type, date, country, radio, description
+submitComplaint()       Clicks the submit button
+
+Locators:
+- .digit-dropdown-employee-select-wrap               dropdowns (complaint type: first, country: nth(1))
+- input[name='ComplaintDate']                        date input
+- .react-datepicker__day--today                      today's date picker
+- .digit-radio-btn-checkmark                         radio button
+- .digit-field-container                             description field
+- .digit-submit-bar .digit-formcomposer-submitbar    submit button
+
+5.3 Test Classes (tests package)
+
+Test Class          Method                          What It Validates
+----------          ------                          -----------------
+LoginTest           verifyUserCanLogin()            Asserts home element is visible after login
+HomeTest            navigateToCreateComplaint()     Navigates to the complaint creation page
+ComplaintTest       createComplaint()               Full flow: navigate + fill complaint form
+
+5.4 ConfigReader.java (utils package)
+
+Loads config.properties via FileInputStream in a static initializer block (loaded once at class load time).
+Provides a generic get(String key) method and typed convenience methods.
+
+Method              Return Type     Description
+------              -----------     -----------
+get(key)            String          Generic property lookup
+getBaseUrl()        String          Returns base.url
+getBrowser()        String          Returns browser
+isHeadless()        boolean         Parses headless as boolean
+getUsername()       String          Returns username
+getPassword()       String          Returns password
+
+5.5 config.properties
+
+    base.url=https://example.com
+    browser=chromium
+    headless=true
+    username=admin
+    password=admin123
+
+5.6 testng.xml
+
+Defines the test suite and controls which test classes execute.
+Current configuration runs LoginTest under the "Smoke Tests" test group.
+
+
+6. Execution Flow
+-----------------
+
+Step 1      Maven / TestNG triggers test execution
+                |
+Step 2      testng.xml selects test classes to run
+                |
+Step 3      @BeforeMethod (BaseTest.setUp)
+                |
+                +-- 3a. Playwright.create()
+                +-- 3b. Launch Chromium (Chrome channel, headless from config)
+                +-- 3c. Open new page, set 60s timeout
+                +-- 3d. Navigate to base.url
+                +-- 3e. Auto-login via LoginPage
+                |
+Step 4      @Test method executes
+                |
+                +-- Instantiate required Page Objects
+                +-- Perform page interactions
+                +-- Assert expected outcomes
+                |
+Step 5      @AfterMethod (BaseTest.tearDown)
+                |
+                +-- 5a. Thread.sleep(10000) -- observation window
+                +-- 5b. Browser.close()
+                +-- 5c. Playwright.close()
+                |
+Step 6      TestNG generates report
+
+
+7. Locator Strategies
+---------------------
+
+Strategy            Syntax                                      Example from Framework
+--------            ------                                      ----------------------
+CSS Attribute       tag[attr='value']                           input[name='username']
+CSS ID              #id                                         #user-login-continue
+CSS Class           .class                                      .main-option
+CSS Has-Text        selector:has-text('text')                   h2.digit-button-label:has-text('Create Complaint')
+CSS Descendant      .parent .child                              .digit-submit-bar .digit-formcomposer-submitbar
+Playwright Index    locator(selector).first() / .nth(n)         page.locator(".main-option").first()
+By Placeholder      page.getByPlaceholder("text")               page.getByPlaceholder("Enter your username")
+By Label            page.getByLabel("text")                     page.getByLabel("Username")
+By Role             page.getByRole(AriaRole.BUTTON, opts)       page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Login"))
+By Text             page.getByText("text")                      page.getByText("Sign in")
+By Test ID          page.getByTestId("id")                      page.getByTestId("login-btn")
+
+
+8. How to Run Tests
+-------------------
+
+8.1 Maven CLI
+
+    Run all tests:
+        mvn clean test
+
+    Run a specific test class:
+        mvn clean test -Dtest=LoginTest
+
+    Run using testng.xml suite:
+        mvn clean test -DsuiteXmlFile=testng.xml
+
+8.2 IDE (IntelliJ IDEA / Eclipse)
+
+    1. Right-click on a test class or method.
+    2. Select Run (TestNG will be auto-detected).
+    3. Or right-click testng.xml and select Run.
+
+8.3 Via testng.xml
+
+Run the testng.xml file directly to execute the configured suite. To include additional tests, add class entries:
+
+    <classes>
+        <class name="tests.LoginTest"/>
+        <class name="tests.HomeTest"/>
+        <class name="tests.ComplaintTest"/>
+    </classes>
+
+
+9. Configuration Options
+------------------------
+
+Key             Type        Default Value           Description
+---             ----        -------------           -----------
+base.url        String      https://example.com     Application URL to navigate to
+browser         String      chromium                Browser engine (chromium/firefox/webkit)
+headless        Boolean     true                    Run browser without UI (true/false)
+username        String      admin                   Login username
+password        String      admin123                Login password
+
+
+10. Best Practices Implemented
+------------------------------
+
+- Page Object Model -- UI locators and actions separated from test logic.
+- Single Responsibility -- Each page class handles one page; each test class handles one feature.
+- Centralized Configuration -- All environment values in config.properties, read via ConfigReader.
+- Inherited Setup/Teardown -- BaseTest eliminates duplicate lifecycle code across all tests.
+- Auto-Login Before Tests -- Login is handled in @BeforeMethod so tests start from an authenticated state.
+- Clean Browser Per Test -- Each @Test gets a fresh Playwright + Browser instance, preventing state leakage.
+- Explicit Waits -- waitFor() used before visibility checks instead of arbitrary sleeps.
+- Null-Safe Cleanup -- tearDown() checks for null before closing browser and Playwright.
+- Thread Interrupt Handling -- InterruptedException properly restores the interrupt flag.
+- Locators as Constants -- Stored as private final String fields for easy maintenance.
+
+
+11. Future Enhancements
+-----------------------
+
+[ ] Add screenshot capture on test failure using page.screenshot()
+[ ] Integrate Extent Reports or Allure for rich HTML reporting
+[ ] Add parallel test execution configuration in testng.xml
+[ ] Implement environment-based config profiles (dev, staging, production)
+[ ] Add API testing support for backend validation
+[ ] Implement retry logic for flaky tests using TestNG IRetryAnalyzer
+[ ] Add data-driven testing with TestNG @DataProvider
+[ ] Create a BasePage class with common page methods (wait, scroll, screenshot)
+[ ] Add logging with SLF4J/Log4j2 for debugging
+[ ] Integrate with CI/CD pipeline (Jenkins/GitHub Actions)
+[ ] Add cross-browser testing support (Firefox, WebKit)
+[ ] Implement video recording for test executions
+
+
+12. Prerequisites
+-----------------
+
+Requirement             Details
+-----------             -------
+Java JDK                Version 11 or higher installed, JAVA_HOME set
+Maven                   Version 3.x installed, available on system PATH
+Google Chrome           Installed (Playwright uses Chrome channel)
+IDE (Optional)          IntelliJ IDEA or Eclipse with TestNG plugin
+Network Access          Required for Maven dependency download on first build
+
+
+13. Dependencies
+----------------
+
+pom.xml snippet:
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <playwright.version>1.42.0</playwright.version>
+        <testng.version>7.9.0</testng.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>${playwright.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+        </plugins>
+    </build>
