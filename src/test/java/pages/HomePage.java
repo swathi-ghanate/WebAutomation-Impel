@@ -1,17 +1,18 @@
 package pages;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitUntilState;
 
 public class HomePage {
 
     private final Page page;
 
     // --- Locators ---
-    private final String homeElement = ".digit-topbar-ulb";
-    private final String createComplaintBtn = "h2.digit-button-label:has-text('Create Complaint')";
-    private final String searchComplaintBtn = "h2.digit-button-label:has-text('Search Complaint')";
-    private final String createUserBtn = "h2.digit-button-label:has-text('Create User')";
-    private final String searchUserBtn = "h2.digit-button-label:has-text('Search User')";
+    private final String homeElement = "span.text.removeHeight:has-text('Complaints')";
+    private final String createComplaintBtn = "a[href='/digit-ui/employee/pgr/complaint/create']";
+    private final String searchComplaintBtn = "a[href='/digit-ui/employee/pgr/inbox']";
+    private final String createUserBtn = "a[href='/digit-ui/employee/hrms/create']";
+    private final String searchUserBtn = "a[href='/digit-ui/employee/hrms/inbox']";
 
     public HomePage(Page page) {
         this.page = page;
@@ -23,18 +24,38 @@ public class HomePage {
     }
 
     public void navigateToCreateComplaint() {
-        page.click(createComplaintBtn);
+        page.navigate(
+                "https://oyo-hcm.digit.org/digit-ui/employee/pgr/complaint/create",
+                new Page.NavigateOptions()
+                        .setTimeout(120000)
+                        .setWaitUntil(WaitUntilState.COMMIT));
+        page.waitForTimeout(3000);
     }
 
     public void navigateToSearchComplaint() {
-        page.click(searchComplaintBtn);
+        page.navigate(
+                "https://oyo-hcm.digit.org/digit-ui/employee/pgr/inbox",
+                new Page.NavigateOptions()
+                        .setTimeout(120000)
+                        .setWaitUntil(WaitUntilState.COMMIT));
+        page.waitForTimeout(3000);
     }
 
     public void navigateToCreateUser() {
-        page.click(createUserBtn);
+        page.navigate(
+                "https://oyo-hcm.digit.org/digit-ui/employee/hrms/create",
+                new Page.NavigateOptions()
+                        .setTimeout(120000)
+                        .setWaitUntil(WaitUntilState.COMMIT));
+        page.waitForTimeout(5000);
     }
 
     public void navigateToSearchUser() {
-        page.click(searchUserBtn);
+        page.navigate(
+                "https://oyo-hcm.digit.org/digit-ui/employee/hrms/inbox",
+                new Page.NavigateOptions()
+                        .setTimeout(120000)
+                        .setWaitUntil(WaitUntilState.COMMIT));
+        page.waitForTimeout(3000);
     }
 }

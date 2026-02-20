@@ -9,7 +9,7 @@ public class LoginPage {
     // --- Locators (CSS Selectors) ---
     private final String usernameField = "input[name='username']";
     private final String passwordField = "input[name='password']";
-    private final String loginButton = "#user-login-continue";
+    private final String loginButton = "button.submit-bar";
 
     // --- Alternative Locator Strategies (Playwright built-in) ---
     // By ID: page.locator("#username")
@@ -25,8 +25,13 @@ public class LoginPage {
     }
 
     public void login(String username, String password) {
-        page.fill(usernameField, username);
-        page.fill(passwordField, password);
-        page.click(loginButton);
+        page.locator(usernameField).waitFor();
+        page.locator(usernameField).fill(username);
+
+        page.locator(passwordField).waitFor();
+        page.locator(passwordField).fill(password);
+
+        page.locator(loginButton).waitFor();
+        page.locator(loginButton).click();
     }
 }

@@ -1,28 +1,19 @@
-# Created at 2026-02-19T16:28:19.096
-Thread dump for process (21020@DESKTOP-CGFBCQ3):
+# Created at 2026-02-20T12:56:59.832
+Thread dump for process (28132@DESKTOP-CGFBCQ3):
 "main" 
-   java.lang.Thread.State: TIMED_WAITING
-        at java.base@11.0.30/jdk.internal.misc.Unsafe.park(Native Method)
-        at java.base@11.0.30/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:234)
-        at java.base@11.0.30/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2123)
-        at java.base@11.0.30/java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:432)
-        at app//com.microsoft.playwright.impl.PipeTransport.poll(PipeTransport.java:68)
-        at app//com.microsoft.playwright.impl.Connection.processOneMessage(Connection.java:205)
-        at app//com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:118)
-        at app//com.microsoft.playwright.impl.Connection.sendMessage(Connection.java:130)
-        at app//com.microsoft.playwright.impl.ChannelOwner.sendMessage(ChannelOwner.java:106)
-        at app//com.microsoft.playwright.impl.FrameImpl.clickImpl(FrameImpl.java:252)
-        at app//com.microsoft.playwright.impl.PageImpl.lambda$click$18(PageImpl.java:620)
-        at app//com.microsoft.playwright.impl.PageImpl$$Lambda$214/0x000000080022a440.run(Unknown Source)
-        at app//com.microsoft.playwright.impl.LoggingSupport.lambda$withLogging$0(LoggingSupport.java:36)
-        at app//com.microsoft.playwright.impl.LoggingSupport$$Lambda$211/0x0000000800229040.get(Unknown Source)
-        at app//com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:47)
-        at app//com.microsoft.playwright.impl.ChannelOwner.withLogging(ChannelOwner.java:89)
-        at app//com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:35)
-        at app//com.microsoft.playwright.impl.PageImpl.click(PageImpl.java:619)
-        at app//com.microsoft.playwright.Page.click(Page.java:3801)
-        at app//pages.LoginPage.login(LoginPage.java:30)
-        at app//base.BaseTest.setUp(BaseTest.java:33)
+   java.lang.Thread.State: RUNNABLE
+        at java.base@11.0.30/java.lang.ProcessImpl.waitForTimeoutInterruptibly(Native Method)
+        at java.base@11.0.30/java.lang.ProcessImpl.waitFor(ProcessImpl.java:589)
+        at app//com.microsoft.playwright.impl.driver.jar.DriverJar.installBrowsers(DriverJar.java:94)
+        at app//com.microsoft.playwright.impl.driver.jar.DriverJar.initialize(DriverJar.java:69)
+        at app//com.microsoft.playwright.impl.driver.Driver.initialize(Driver.java:64)
+        at app//com.microsoft.playwright.impl.driver.Driver.createAndInstall(Driver.java:101)
+        at app//com.microsoft.playwright.impl.driver.Driver.ensureDriverInstalled(Driver.java:57)
+        at app//com.microsoft.playwright.impl.PlaywrightImpl.createImpl(PlaywrightImpl.java:46)
+        at app//com.microsoft.playwright.impl.PlaywrightImpl.create(PlaywrightImpl.java:36)
+        at app//com.microsoft.playwright.Playwright.create(Playwright.java:110)
+        at app//com.microsoft.playwright.Playwright.create(Playwright.java:114)
+        at app//base.BaseTest.setUp(BaseTest.java:22)
         at java.base@11.0.30/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
         at java.base@11.0.30/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
         at java.base@11.0.30/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -119,55 +110,39 @@ Thread dump for process (21020@DESKTOP-CGFBCQ3):
         at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1628)
         at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
 
-"Thread-1" 
-   java.lang.Thread.State: RUNNABLE
-        at java.base@11.0.30/java.io.FileInputStream.readBytes(Native Method)
-        at java.base@11.0.30/java.io.FileInputStream.read(FileInputStream.java:279)
-        at java.base@11.0.30/java.io.BufferedInputStream.read1(BufferedInputStream.java:290)
-        at java.base@11.0.30/java.io.BufferedInputStream.read(BufferedInputStream.java:351)
-        at java.base@11.0.30/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)
-        at java.base@11.0.30/java.io.BufferedInputStream.read(BufferedInputStream.java:271)
-        at java.base@11.0.30/java.io.FilterInputStream.read(FilterInputStream.java:83)
-        at app//com.microsoft.playwright.impl.ReaderThread.readIntLE(PipeTransport.java:105)
-        at app//com.microsoft.playwright.impl.ReaderThread.readMessage(PipeTransport.java:139)
-        at app//com.microsoft.playwright.impl.ReaderThread.run(PipeTransport.java:125)
-
-"Thread-2" 
+"ForkJoinPool.commonPool-worker-5" 
    java.lang.Thread.State: WAITING
         at java.base@11.0.30/jdk.internal.misc.Unsafe.park(Native Method)
         at java.base@11.0.30/java.util.concurrent.locks.LockSupport.park(LockSupport.java:194)
-        at java.base@11.0.30/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2081)
-        at java.base@11.0.30/java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:417)
-        at app//com.microsoft.playwright.impl.WriterThread.run(PipeTransport.java:168)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1628)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
 
-
-
-# Created at 2026-02-19T16:28:19.104
-Exiting self fork JVM. Received SHUTDOWN command from Maven shutdown hook.
-Thread dump before exiting the process (21020@DESKTOP-CGFBCQ3):
-"main" 
+"ForkJoinPool.commonPool-worker-23" 
    java.lang.Thread.State: TIMED_WAITING
         at java.base@11.0.30/jdk.internal.misc.Unsafe.park(Native Method)
-        at java.base@11.0.30/java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:234)
-        at java.base@11.0.30/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2123)
-        at java.base@11.0.30/java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:432)
-        at app//com.microsoft.playwright.impl.PipeTransport.poll(PipeTransport.java:68)
-        at app//com.microsoft.playwright.impl.Connection.processOneMessage(Connection.java:205)
-        at app//com.microsoft.playwright.impl.ChannelOwner.runUntil(ChannelOwner.java:118)
-        at app//com.microsoft.playwright.impl.Connection.sendMessage(Connection.java:130)
-        at app//com.microsoft.playwright.impl.ChannelOwner.sendMessage(ChannelOwner.java:106)
-        at app//com.microsoft.playwright.impl.FrameImpl.clickImpl(FrameImpl.java:252)
-        at app//com.microsoft.playwright.impl.PageImpl.lambda$click$18(PageImpl.java:620)
-        at app//com.microsoft.playwright.impl.PageImpl$$Lambda$214/0x000000080022a440.run(Unknown Source)
-        at app//com.microsoft.playwright.impl.LoggingSupport.lambda$withLogging$0(LoggingSupport.java:36)
-        at app//com.microsoft.playwright.impl.LoggingSupport$$Lambda$211/0x0000000800229040.get(Unknown Source)
-        at app//com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:47)
-        at app//com.microsoft.playwright.impl.ChannelOwner.withLogging(ChannelOwner.java:89)
-        at app//com.microsoft.playwright.impl.LoggingSupport.withLogging(LoggingSupport.java:35)
-        at app//com.microsoft.playwright.impl.PageImpl.click(PageImpl.java:619)
-        at app//com.microsoft.playwright.Page.click(Page.java:3801)
-        at app//pages.LoginPage.login(LoginPage.java:30)
-        at app//base.BaseTest.setUp(BaseTest.java:33)
+        at java.base@11.0.30/java.util.concurrent.locks.LockSupport.parkUntil(LockSupport.java:275)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1619)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
+
+
+
+# Created at 2026-02-20T12:56:59.839
+Exiting self fork JVM. Received SHUTDOWN command from Maven shutdown hook.
+Thread dump before exiting the process (28132@DESKTOP-CGFBCQ3):
+"main" 
+   java.lang.Thread.State: RUNNABLE
+        at java.base@11.0.30/java.lang.ProcessImpl.waitForTimeoutInterruptibly(Native Method)
+        at java.base@11.0.30/java.lang.ProcessImpl.waitFor(ProcessImpl.java:589)
+        at app//com.microsoft.playwright.impl.driver.jar.DriverJar.installBrowsers(DriverJar.java:94)
+        at app//com.microsoft.playwright.impl.driver.jar.DriverJar.initialize(DriverJar.java:69)
+        at app//com.microsoft.playwright.impl.driver.Driver.initialize(Driver.java:64)
+        at app//com.microsoft.playwright.impl.driver.Driver.createAndInstall(Driver.java:101)
+        at app//com.microsoft.playwright.impl.driver.Driver.ensureDriverInstalled(Driver.java:57)
+        at app//com.microsoft.playwright.impl.PlaywrightImpl.createImpl(PlaywrightImpl.java:46)
+        at app//com.microsoft.playwright.impl.PlaywrightImpl.create(PlaywrightImpl.java:36)
+        at app//com.microsoft.playwright.Playwright.create(Playwright.java:110)
+        at app//com.microsoft.playwright.Playwright.create(Playwright.java:114)
+        at app//base.BaseTest.setUp(BaseTest.java:22)
         at java.base@11.0.30/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
         at java.base@11.0.30/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
         at java.base@11.0.30/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
@@ -265,26 +240,19 @@ Thread dump before exiting the process (21020@DESKTOP-CGFBCQ3):
         at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1628)
         at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
 
-"Thread-1" 
-   java.lang.Thread.State: RUNNABLE
-        at java.base@11.0.30/java.io.FileInputStream.readBytes(Native Method)
-        at java.base@11.0.30/java.io.FileInputStream.read(FileInputStream.java:279)
-        at java.base@11.0.30/java.io.BufferedInputStream.read1(BufferedInputStream.java:290)
-        at java.base@11.0.30/java.io.BufferedInputStream.read(BufferedInputStream.java:351)
-        at java.base@11.0.30/java.io.BufferedInputStream.fill(BufferedInputStream.java:252)
-        at java.base@11.0.30/java.io.BufferedInputStream.read(BufferedInputStream.java:271)
-        at java.base@11.0.30/java.io.FilterInputStream.read(FilterInputStream.java:83)
-        at app//com.microsoft.playwright.impl.ReaderThread.readIntLE(PipeTransport.java:105)
-        at app//com.microsoft.playwright.impl.ReaderThread.readMessage(PipeTransport.java:139)
-        at app//com.microsoft.playwright.impl.ReaderThread.run(PipeTransport.java:125)
-
-"Thread-2" 
+"ForkJoinPool.commonPool-worker-5" 
    java.lang.Thread.State: WAITING
         at java.base@11.0.30/jdk.internal.misc.Unsafe.park(Native Method)
         at java.base@11.0.30/java.util.concurrent.locks.LockSupport.park(LockSupport.java:194)
-        at java.base@11.0.30/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:2081)
-        at java.base@11.0.30/java.util.concurrent.ArrayBlockingQueue.take(ArrayBlockingQueue.java:417)
-        at app//com.microsoft.playwright.impl.WriterThread.run(PipeTransport.java:168)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1628)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
+
+"ForkJoinPool.commonPool-worker-23" 
+   java.lang.Thread.State: TIMED_WAITING
+        at java.base@11.0.30/jdk.internal.misc.Unsafe.park(Native Method)
+        at java.base@11.0.30/java.util.concurrent.locks.LockSupport.parkUntil(LockSupport.java:275)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1619)
+        at java.base@11.0.30/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
 
 
 

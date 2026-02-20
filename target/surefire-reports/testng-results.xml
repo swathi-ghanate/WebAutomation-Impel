@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="2" passed="2" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2026-02-20T15:46:01 IST" name="Surefire suite" finished-at="2026-02-20T15:47:16 IST" duration-ms="74971">
+    <groups>
+    </groups>
+    <test started-at="2026-02-20T15:46:01 IST" name="Surefire test" finished-at="2026-02-20T15:47:16 IST" duration-ms="74971">
+      <class name="tests.LoginTest">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:tests.LoginTest@625732]" started-at="2026-02-20T15:47:00 IST" name="setUp" finished-at="2026-02-20T15:47:13 IST" duration-ms="13003" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="verifyUserCanLogin()[pri:0, instance:tests.LoginTest@625732]" started-at="2026-02-20T15:47:13 IST" name="verifyUserCanLogin" finished-at="2026-02-20T15:47:13 IST" duration-ms="26" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- verifyUserCanLogin -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:tests.LoginTest@625732]" started-at="2026-02-20T15:47:13 IST" name="tearDown" finished-at="2026-02-20T15:47:16 IST" duration-ms="3363" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- tests.LoginTest -->
+      <class name="tests.HRMSTest">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:tests.HRMSTest@120f102b]" started-at="2026-02-20T15:46:02 IST" name="setUp" finished-at="2026-02-20T15:46:25 IST" duration-ms="23821" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="createNewEmployee()[pri:0, instance:tests.HRMSTest@120f102b]" started-at="2026-02-20T15:46:25 IST" name="createNewEmployee" finished-at="2026-02-20T15:46:57 IST" duration-ms="31232" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- createNewEmployee -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:tests.HRMSTest@120f102b]" started-at="2026-02-20T15:46:57 IST" name="tearDown" finished-at="2026-02-20T15:47:00 IST" duration-ms="3439" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- tests.HRMSTest -->
+    </test> <!-- Surefire test -->
+  </suite> <!-- Surefire suite -->
+</testng-results>
