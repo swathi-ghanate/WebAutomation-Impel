@@ -2,6 +2,7 @@ package base;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.WaitUntilState;
@@ -46,14 +47,17 @@ public class BaseTest {
                 new Page.NavigateOptions()
                         .setTimeout(120000)
                         .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-        page.waitForTimeout(2000);
+        // Wait for login form to be rendered by React
+        page.locator("input[name='username']").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(30000));
 
         LoginPage loginPage = new LoginPage(page);
         homePage = loginPage.login(ConfigReader.getUsername(), ConfigReader.getPassword());
 
-        // Wait for home page to fully load after login
+        // Wait for home page URL and then for the dashboard to fully render
         page.waitForURL("**/digit-ui/employee**");
-        page.waitForTimeout(3000);
+        page.locator("span.text.removeHeight:has-text('Complaints')").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(30000));
 
         nav = new NavigationHelper(page);
         screenshot = new ScreenshotHelper(page);
@@ -63,11 +67,6 @@ public class BaseTest {
     public void tearDown(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE && screenshot != null) {
             screenshot.takeOnFailure(result.getName());
-        }
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
         if (browser != null) {
             browser.close();

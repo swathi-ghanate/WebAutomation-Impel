@@ -1,8 +1,9 @@
 package tests;
 
 import base.BaseTest;
-import com.microsoft.playwright.options.WaitUntilState;
+import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitUntilState;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.HomePage;
@@ -13,7 +14,7 @@ public class LoginTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 1 — Valid login (verified via home page visibility)
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 1)
     public void verifyUserCanLogin() {
         // BaseTest.setUp() already logged in — just assert home page loaded
         HomePage home = new HomePage(page);
@@ -23,23 +24,30 @@ public class LoginTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 2 — Invalid credentials show an error
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 2)
     public void verifyInvalidLogin() {
         // Reset to a fresh unauthenticated session
         page.context().clearCookies();
         page.navigate(ConfigReader.getBaseUrl(),
                 new Page.NavigateOptions()
                         .setTimeout(60000)
-                        .setWaitUntil(WaitUntilState.COMMIT));
-        page.waitForTimeout(2000);
+                        .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+        // Wait for login form to be rendered by React
+        page.locator("input[name='username']").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(30000));
         screenshot.take("invalid_01_login_page");
 
         // Fill valid username but wrong password
-        page.locator("input[name='username']").waitFor();
         page.locator("input[name='username']").fill(ConfigReader.getUsername());
         page.locator("input[name='password']").fill("wrongpass123");
         page.locator("button.submit-bar").click();
-        page.waitForTimeout(3000);
+
+        // Wait for error indicator or page to stay on login
+        page.waitForFunction(
+                "() => document.querySelector('[class*=\"error\"], [class*=\"invalid\"], div[role=\"alert\"], .digit-toast, [class*=\"toast\"]') !== null"
+                + " || document.querySelector('input[name=\"password\"]') !== null",
+                null,
+                new Page.WaitForFunctionOptions().setTimeout(10000));
         screenshot.take("invalid_02_after_submit");
 
         // Check for an error indicator — any of these is a pass
@@ -74,21 +82,28 @@ public class LoginTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 3 — Empty fields keep user on login page
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 3)
     public void verifyEmptyLogin() {
         // Reset to a fresh unauthenticated session
         page.context().clearCookies();
         page.navigate(ConfigReader.getBaseUrl(),
                 new Page.NavigateOptions()
                         .setTimeout(60000)
-                        .setWaitUntil(WaitUntilState.COMMIT));
-        page.waitForTimeout(2000);
+                        .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
+        // Wait for login form to be rendered by React
+        page.locator("input[name='username']").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(30000));
         screenshot.take("empty_01_login_page");
 
         // Click login without filling any fields
         page.locator("button.submit-bar").waitFor();
         page.locator("button.submit-bar").click();
-        page.waitForTimeout(2000);
+
+        // HTML5 validation is synchronous — login field stays visible immediately
+        page.waitForFunction(
+                "() => document.querySelector('input[name=\"username\"]') !== null",
+                null,
+                new Page.WaitForFunctionOptions().setTimeout(5000));
         screenshot.take("empty_02_after_click");
 
         // Either HTML5 validation blocks submit (fields still empty + on login page)

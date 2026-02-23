@@ -26,10 +26,15 @@ public class ScreenshotHelper {
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = SCREENSHOT_DIR + name + "_" + timestamp + ".png";
-        page.screenshot(new Page.ScreenshotOptions()
-                .setPath(Paths.get(fileName))
-                .setFullPage(true));
-        System.out.println("[Screenshot] Saved: " + fileName);
+        try {
+            page.screenshot(new Page.ScreenshotOptions()
+                    .setPath(Paths.get(fileName))
+                    .setFullPage(true)
+                    .setTimeout(15000));
+            System.out.println("[Screenshot] Saved: " + fileName);
+        } catch (Exception e) {
+            System.out.println("[Screenshot] Failed (page may still be loading): " + e.getMessage().split("\n")[0]);
+        }
     }
 
     // Take screenshot on failure

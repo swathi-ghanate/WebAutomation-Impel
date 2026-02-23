@@ -11,7 +11,7 @@ public class HRMSTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 1 — Create Employee (all fields)
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 1)
     public void createNewEmployee() {
         HRMSPage hrmsPage = nav.goToCreateEmployee();
         screenshot.take("01_hrms_form_opened");
@@ -47,7 +47,7 @@ public class HRMSTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 2 — Create Employee (mandatory fields only)
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 2)
     public void createEmployeeMinimalData() {
         // Generate unique credentials for this test — avoids collision with createNewEmployee
         int rand = new java.util.Random().nextInt(9000) + 1000;

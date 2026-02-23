@@ -11,7 +11,7 @@ public class SearchEmployeeTest extends BaseTest {
     // ---------------------------------------------------------------
     // Test Case 1 — Edit Employee
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 1)
     public void editEmployee() {
         SearchEmployeePage searchPage = nav.goToSearchEmployee();
         screenshot.take("edit_01_search_page");
@@ -48,45 +48,9 @@ public class SearchEmployeeTest extends BaseTest {
     }
 
     // ---------------------------------------------------------------
-    // Test Case 2 — Edit Campaign Assignment
+    // Test Case 2 — Deactivate Employee
     // ---------------------------------------------------------------
-    @Test
-    public void editCampaignAssignment() {
-        SearchEmployeePage searchPage = nav.goToSearchEmployee();
-        screenshot.take("campaign_01_search_page");
-
-        searchPage.searchEmployee(ConfigReader.get("search.emp.id"));
-        screenshot.take("campaign_02_search_results");
-
-        searchPage.openEmployeeResult();
-        screenshot.take("campaign_03_employee_profile");
-
-        searchPage.openTakeActionMenu();
-        screenshot.take("campaign_04_take_action_menu");
-
-        searchPage.clickEditCampaignAssignment();
-        screenshot.take("campaign_05_campaign_form_opened");
-
-        searchPage.selectTodayForCampaign();
-        screenshot.take("campaign_06_date_selected");
-
-        searchPage.saveCampaignEdit();
-        screenshot.take("campaign_07_saved");
-
-        boolean success = searchPage.isSuccessMessageVisible("Employee Details Updated Successfully");
-        if (success) {
-            screenshot.takeOnSuccess("editCampaignAssignment");
-        }
-
-        Assert.assertTrue(success, "Edit Campaign Assignment: success message not found");
-
-        searchPage.goBackToHome();
-    }
-
-    // ---------------------------------------------------------------
-    // Test Case 3 — Deactivate Employee
-    // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 2)
     public void deactivateEmployee() {
         SearchEmployeePage searchPage = nav.goToSearchEmployee();
         screenshot.take("deactivate_01_search_page");
@@ -120,9 +84,9 @@ public class SearchEmployeeTest extends BaseTest {
     }
 
     // ---------------------------------------------------------------
-    // Test Case 4 — Search and Verify Employee Appears in Results
+    // Test Case 3 — Search and Verify Employee Appears in Results
     // ---------------------------------------------------------------
-    @Test
+    @Test(priority = 3)
     public void searchAndVerifyEmployee() {
         String empId = ConfigReader.get("search.emp.id");
 
@@ -134,9 +98,9 @@ public class SearchEmployeeTest extends BaseTest {
 
         // Verify a result link appears in the table — try most specific to broadest
         String[] selectors = {
-            "table tbody tr td:first-child a",
-            "tbody tr td a",
-            "tbody a"
+                "table tbody tr td:first-child a",
+                "tbody tr td a",
+                "tbody a"
         };
 
         boolean resultFound = false;

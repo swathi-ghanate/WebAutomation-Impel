@@ -11,16 +11,16 @@ public class SearchEmployeePage extends BasePage {
     private final FormHelper form;
 
     // --- Search ---
-    private final String searchInput   = "input[name='codes']";
-    private final String searchBtn     = "button.submit-bar-search[type='submit']";
+    private final String searchInput = "input[name='codes']";
+    private final String searchBtn = "button.submit-bar-search[type='submit']";
 
     // --- Action menu ---
-    private final String takeActionBtn  = "button.submit-bar[type='button']";
-    private final String menuItem       = "div.menu-wrap p";
+    private final String takeActionBtn = "button.submit-bar[type='button']";
+    private final String menuItem = "div.menu-wrap p";
 
     // --- Edit Employee ---
     private final String employeeName = "input[pattern*='1,50'][title*='Username']";
-    private final String saveBtn       = "div.action-bar-wrap button[type='submit']";
+    private final String saveBtn = "div.action-bar-wrap button[type='submit']";
 
     // --- Edit Campaign Assignment ---
     private final String campaignDateInput = "input.employee-card-input[type='date'][min]";
@@ -30,7 +30,7 @@ public class SearchEmployeePage extends BasePage {
     private final String deactivateConfirm = "button.selector-button-primary[type='submit']";
 
     // --- Success & Back ---
-    private final String successMessage  = "div.emp-success-wrap header";
+    private final String successMessage = "div.emp-success-wrap header";
     private final String goBackToHomeBtn = "div.emp-success-wrap button";
 
     public SearchEmployeePage(Page page) {
@@ -40,7 +40,7 @@ public class SearchEmployeePage extends BasePage {
 
     // ---------------------------------------------------------------
     // Shared: search by id, open first result,
-    //         open Take Action menu, click the named menu item
+    // open Take Action menu, click the named menu item
     // ---------------------------------------------------------------
 
     public SearchEmployeePage searchEmployee(String empId) {
@@ -60,9 +60,9 @@ public class SearchEmployeePage extends BasePage {
         // The Employee ID in the results table is a link in the first column.
         // Try selectors from most specific to broadest.
         String[] selectors = {
-            "table tbody tr td:first-child a",
-            "tbody tr td a",
-            "tbody a"
+                "table tbody tr td:first-child a",
+                "tbody tr td a",
+                "tbody a"
         };
 
         for (String sel : selectors) {
@@ -118,7 +118,10 @@ public class SearchEmployeePage extends BasePage {
         form.selectDropdown(0, 0);
         page.waitForTimeout(500);
 
-        // Role — typeahead (div.master input.cursorPointer) same as create form
+        // Role — open the typeahead dropdown and inspect checkbox state.
+        // The dropdown shows a checked checkbox when a role is already assigned.
+        // DO NOT click a checked checkbox — that would deselect the role.
+        // Only click if the checkbox is unchecked (role not yet assigned).
         page.locator("div.master input.cursorPointer").first().scrollIntoViewIfNeeded();
         page.waitForTimeout(500);
         try {
@@ -135,12 +138,30 @@ public class SearchEmployeePage extends BasePage {
         }
 
         if (page.locator("div.server input[type='checkbox']").count() > 0) {
-            page.locator("div.server input[type='checkbox']").first().dispatchEvent("click");
+            boolean isChecked = page.locator("div.server input[type='checkbox']").first().isChecked();
+            if (isChecked) {
+                System.out.println("[Search] Role already assigned (checkbox checked) — not changing");
+            } else {
+                System.out.println("[Search] Role not assigned — selecting first available role");
+                page.locator("div.server input[type='checkbox']").first().dispatchEvent("click");
+            }
         } else if (page.locator(".profile-dropdown--item").count() > 0) {
-            page.locator(".profile-dropdown--item").first().dispatchEvent("click");
+            // No checkbox visible — items are plain list items.
+            // Skip to preserve any existing role selection already in form state.
+            System.out.println("[Search] Role dropdown items found (no checkbox) — skipping to preserve existing");
         }
+
+        // Close the dropdown: press Escape then click elsewhere to dismiss reliably
         page.waitForTimeout(500);
         page.keyboard().press("Escape");
+        page.waitForTimeout(400);
+        // Click on a safe neutral area (form heading) to fully dismiss the dropdown overlay
+        try {
+            page.locator("h1, h2, .form-heading").first()
+                    .click(new Locator.ClickOptions().setForce(true));
+        } catch (Exception e) {
+            page.evaluate("document.body.click()");
+        }
         page.waitForTimeout(400);
         System.out.println("[Search] Filled required edit fields (Employment Type + Role)");
         return this;
@@ -152,21 +173,30 @@ public class SearchEmployeePage extends BasePage {
 
         Locator btn = page.locator(saveBtn).first();
 
-        // First click — enables button if disabled, or triggers React validation
+        // First click — enables button if disabled, or submits if already enabled
         btn.dispatchEvent("click");
         page.waitForTimeout(3000);
 
-        // Second click — if button is now enabled, this is the actual submit
-        String btnClass = btn.getAttribute("class");
-        if (btnClass != null && !btnClass.contains("disable")) {
-            btn.dispatchEvent("click");
-            page.waitForTimeout(3000);
+        // Second click — only if the button is still present AND not disabled.
+        // When the form is already valid the first click submits immediately and the
+        // page navigates away, so the button may no longer exist. Use a short
+        // timeout to check the class; if the element is gone, skip the second click.
+        try {
+            String btnClass = btn.getAttribute("class",
+                    new Locator.GetAttributeOptions().setTimeout(5000));
+            if (btnClass != null && !btnClass.contains("disable")) {
+                btn.dispatchEvent("click");
+                page.waitForTimeout(3000);
+            }
+        } catch (Exception e) {
+            // Button gone — first click already submitted the form successfully
+            System.out.println("[Search] Save button no longer present — form submitted on first click");
         }
 
         // Confirmation popup — may appear after submit
         String[] confirmSelectors = {
-            "button.selector-button-primary[type='submit']",
-            "button.selector-button-primary"
+                "button.selector-button-primary[type='submit']",
+                "button.selector-button-primary"
         };
         for (String sel : confirmSelectors) {
             if (page.locator(sel).count() > 0) {
@@ -214,7 +244,8 @@ public class SearchEmployeePage extends BasePage {
         Locator allBtns = page.locator("button[type='submit']");
         int count = allBtns.count();
         System.out.println("[Search] Campaign save: submit buttons found: " + count);
-        if (count == 0) return this;
+        if (count == 0)
+            return this;
 
         Locator btn = allBtns.nth(count - 1);
         btn.scrollIntoViewIfNeeded();
@@ -226,7 +257,8 @@ public class SearchEmployeePage extends BasePage {
         btn.dispatchEvent("click");
         page.waitForTimeout(3000);
 
-        // Second click — null-safe: if class is null OR does not contain "disable", click again
+        // Second click — null-safe: if class is null OR does not contain "disable",
+        // click again
         String classAfter = btn.getAttribute("class");
         System.out.println("[Search] Campaign save: button class after first click = " + classAfter);
         if (classAfter == null || !classAfter.contains("disable")) {
@@ -237,8 +269,8 @@ public class SearchEmployeePage extends BasePage {
 
         // Confirmation popup
         String[] confirmSelectors = {
-            "button.selector-button-primary[type='submit']",
-            "button.selector-button-primary"
+                "button.selector-button-primary[type='submit']",
+                "button.selector-button-primary"
         };
         for (String sel : confirmSelectors) {
             if (page.locator(sel).count() > 0) {
@@ -303,19 +335,20 @@ public class SearchEmployeePage extends BasePage {
 
         // Fallback: check toast / snackbar notifications
         String[] toastSelectors = {
-            ".toast-success",
-            ".Toastify__toast",
-            "div[role='alert']",
-            ".digit-toast",
-            "[class*='toast']",
-            "[class*='success']"
+                ".toast-success",
+                ".Toastify__toast",
+                "div[role='alert']",
+                ".digit-toast",
+                "[class*='toast']",
+                "[class*='success']"
         };
         for (String sel : toastSelectors) {
             try {
                 if (page.locator(sel).count() > 0) {
                     String text = page.locator(sel).first().textContent();
                     System.out.println("[Search] Toast message (" + sel + "): " + text);
-                    if (text.contains(expectedText)) return true;
+                    if (text.contains(expectedText))
+                        return true;
                 }
             } catch (Exception ex) {
                 System.out.println("[Search] Toast check failed for " + sel + ": " + ex.getMessage().split("\n")[0]);

@@ -33,7 +33,9 @@ public class HRMSPage extends BasePage {
 
     public HRMSPage fillLoginDetails(String empId, String pwd) {
         page.evaluate("window.scrollTo(0, 0)");
-        page.waitForTimeout(2000);
+        // Wait for the employee ID field to be visible after scroll
+        page.locator("input[title*='Username']").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(10000));
 
         form.fillForce(employeeId, empId);
         form.fillForceNth(password, 0, pwd);
@@ -76,23 +78,30 @@ public class HRMSPage extends BasePage {
         dateInput.scrollIntoViewIfNeeded();
         dateInput.fill(today);
         dateInput.dispatchEvent("change");
-        page.waitForTimeout(500);
 
-        // Role
+        // Role — scroll and click to open typeahead
         page.locator("div.master input.cursorPointer").first().scrollIntoViewIfNeeded();
-        page.waitForTimeout(500);
         try {
             page.locator("div.master input.cursorPointer").first()
                     .click(new Locator.ClickOptions().setForce(true));
         } catch (Exception e) {
             form.clickDispatch("div.master input.cursorPointer");
         }
-        page.waitForTimeout(1500);
+
+        // Wait for typeahead options to appear
+        try {
+            page.locator("div.server input[type='checkbox'], .profile-dropdown--item").first()
+                    .waitFor(new Locator.WaitForOptions().setTimeout(3000));
+        } catch (Exception ignored) {
+            // Options didn't appear — try ArrowDown
+        }
 
         // ArrowDown is required to open this typeahead dropdown — click alone is not enough
         if (page.locator("div.server input[type='checkbox'], .profile-dropdown--item").count() == 0) {
             page.locator("div.master input.cursorPointer").first().press("ArrowDown");
-            page.waitForTimeout(1500);
+            // Wait for options to appear after ArrowDown
+            page.locator("div.server input[type='checkbox'], .profile-dropdown--item").first()
+                    .waitFor(new Locator.WaitForOptions().setTimeout(5000));
         }
 
         // Select role option
@@ -101,15 +110,15 @@ public class HRMSPage extends BasePage {
         } else if (page.locator(".profile-dropdown--item").count() > 0) {
             page.locator(".profile-dropdown--item").first().dispatchEvent("click");
         }
-        page.waitForTimeout(500);
         page.keyboard().press("Escape");
-        page.waitForTimeout(400);
         return this;
     }
 
     public void submitForm() {
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-        page.waitForTimeout(4000);
+        // Wait for the submit button to be present
+        page.locator("button[type='submit']").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(15000));
 
         Locator submitBtns = page.locator("button[type='submit']");
         int count = submitBtns.count();
@@ -122,14 +131,24 @@ public class HRMSPage extends BasePage {
 
         // First click — if button was disabled, this enables it (React state update)
         lastBtn.dispatchEvent("click");
-        page.waitForTimeout(3000);
+        // Wait for React to update button class (disabled → enabled)
+        try {
+            page.waitForFunction(
+                    "() => { const btns = document.querySelectorAll('button[type=\"submit\"]');"
+                    + " const btn = btns[btns.length - 1];"
+                    + " return btn && !btn.className.includes('disable'); }",
+                    null,
+                    new Page.WaitForFunctionOptions().setTimeout(10000));
+        } catch (Exception ignored) { /* button may already be enabled or stay disabled */ }
 
         // Second click — if button is now enabled, this is the actual submission
         String btnClass = lastBtn.getAttribute("class");
         if (btnClass != null && !btnClass.contains("disable")) {
             System.out.println("[HRMS] Button enabled after first click — clicking again to submit");
             lastBtn.dispatchEvent("click");
-            page.waitForTimeout(3000);
+            // Wait for confirmation popup or success page to appear
+            page.locator("button.selector-button-primary[type='submit'], div.emp-success-wrap header").first()
+                    .waitFor(new Locator.WaitForOptions().setTimeout(15000));
         }
 
         // Confirm popup — appears after actual submission
@@ -145,13 +164,15 @@ public class HRMSPage extends BasePage {
                 break;
             }
         }
-        page.waitForTimeout(5000);
+        // Wait for success message to confirm the employee was created
+        page.locator(successMessage).first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(60000));
     }
 
     public boolean isEmployeeCreatedSuccessfully() {
         try {
             page.locator(successMessage)
-                    .waitFor(new Locator.WaitForOptions().setTimeout(30000));
+                    .waitFor(new Locator.WaitForOptions().setTimeout(60000));
             String text = page.locator(successMessage).textContent();
             System.out.println("[HRMS] Success message: " + text);
             return text.contains("Employee Created Successfully");

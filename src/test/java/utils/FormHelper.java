@@ -2,6 +2,7 @@ package utils;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class FormHelper {
 
@@ -54,7 +55,6 @@ public class FormHelper {
     // Open dropdown by clicking SVG and select option by index
     public void selectDropdown(int svgIndex, int optionIndex) {
         page.locator("div.select").nth(svgIndex).scrollIntoViewIfNeeded();
-        page.waitForTimeout(300);
 
         // Click the SVG arrow to open
         Locator svg = page.locator("div.select svg.cp");
@@ -63,7 +63,10 @@ public class FormHelper {
         } else {
             page.locator("div.select").nth(svgIndex).dispatchEvent("click");
         }
-        page.waitForTimeout(1500);
+
+        // Wait for dropdown options to appear
+        page.locator(".profile-dropdown--item").first()
+                .waitFor(new Locator.WaitForOptions().setTimeout(10000));
 
         // Select option
         int count = page.locator(".profile-dropdown--item").count();
@@ -72,9 +75,13 @@ public class FormHelper {
             page.locator(".profile-dropdown--item").nth(optionIndex).dispatchEvent("click");
             System.out.println("[FormHelper] Selected option index: " + optionIndex);
         }
-        page.waitForTimeout(500);
+
+        // Wait for dropdown to close before pressing Escape
+        page.locator(".profile-dropdown--item").first()
+                .waitFor(new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.HIDDEN)
+                        .setTimeout(5000));
         page.keyboard().press("Escape");
-        page.waitForTimeout(300);
     }
 
     // Fill date field via JavaScript — bypasses strict mode issues
