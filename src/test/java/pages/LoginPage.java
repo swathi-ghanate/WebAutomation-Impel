@@ -6,25 +6,16 @@ public class LoginPage {
 
     private final Page page;
 
-    // --- Locators (CSS Selectors) ---
+    // --- Locators ---
     private final String usernameField = "input[name='username']";
     private final String passwordField = "input[name='password']";
-    private final String loginButton = "button.submit-bar";
-
-    // --- Alternative Locator Strategies (Playwright built-in) ---
-    // By ID: page.locator("#username")
-    // By Placeholder: page.getByPlaceholder("Enter your username")
-    // By Label: page.getByLabel("Username")
-    // By Role: page.getByRole(AriaRole.BUTTON, new
-    // Page.GetByRoleOptions().setName("Login"))
-    // By Text: page.getByText("Sign in")
-    // By Test ID: page.getByTestId("login-btn")
+    private final String loginButton   = "button.submit-bar";
 
     public LoginPage(Page page) {
         this.page = page;
     }
 
-    public void login(String username, String password) {
+    public HomePage login(String username, String password) {
         page.locator(usernameField).waitFor();
         page.locator(usernameField).fill(username);
 
@@ -33,5 +24,7 @@ public class LoginPage {
 
         page.locator(loginButton).waitFor();
         page.locator(loginButton).click();
+
+        return new HomePage(page);
     }
 }

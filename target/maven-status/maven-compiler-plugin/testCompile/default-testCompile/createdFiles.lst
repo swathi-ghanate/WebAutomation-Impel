@@ -1,9 +1,0 @@
-pages\LoginPage.class
-pages\HomePage.class
-utils\ConfigReader.class
-tests\LoginTest.class
-base\BaseTest.class
-utils\FormHelper.class
-utils\ScreenshotHelper.class
-tests\HRMSTest.class
-pages\HRMSPage.class

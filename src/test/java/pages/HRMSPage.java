@@ -6,9 +6,8 @@ import utils.FormHelper;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class HRMSPage {
+public class HRMSPage extends BasePage {
 
-    private final Page page;
     private final FormHelper form;
 
     // --- Login Details ---
@@ -28,20 +27,21 @@ public class HRMSPage {
     private final String successEmpId = "div.emp-success-wrap p";
 
     public HRMSPage(Page page) {
-        this.page = page;
+        super(page);
         this.form = new FormHelper(page);
     }
 
-    public void fillLoginDetails(String empId, String pwd) {
+    public HRMSPage fillLoginDetails(String empId, String pwd) {
         page.evaluate("window.scrollTo(0, 0)");
         page.waitForTimeout(2000);
 
         form.fillForce(employeeId, empId);
         form.fillForceNth(password, 0, pwd);
         form.fillForceNth(password, 1, pwd);
+        return this;
     }
 
-    public void fillPersonalDetails(String name, String mobile,
+    public HRMSPage fillPersonalDetails(String name, String mobile,
             String dob, String emailId, String addr) {
 
         form.waitFor(employeeName);
@@ -62,9 +62,10 @@ public class HRMSPage {
 
         form.waitFor(address);
         form.fill(address, addr);
+        return this;
     }
 
-    public void fillEmployeeDetails() {
+    public HRMSPage fillEmployeeDetails() {
         // Employment Type — first dropdown, first option
         form.selectDropdown(0, 0);
 
@@ -103,6 +104,7 @@ public class HRMSPage {
         page.waitForTimeout(500);
         page.keyboard().press("Escape");
         page.waitForTimeout(400);
+        return this;
     }
 
     public void submitForm() {

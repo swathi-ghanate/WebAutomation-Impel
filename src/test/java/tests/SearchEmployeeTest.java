@@ -5,8 +5,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import pages.SearchEmployeePage;
 import utils.ConfigReader;
-import utils.NavigationHelper;
-import utils.ScreenshotHelper;
 
 public class SearchEmployeeTest extends BaseTest {
 
@@ -15,8 +13,6 @@ public class SearchEmployeeTest extends BaseTest {
     // ---------------------------------------------------------------
     @Test
     public void editEmployee() {
-        ScreenshotHelper screenshot = new ScreenshotHelper(page);
-        NavigationHelper nav = new NavigationHelper(page);
         SearchEmployeePage searchPage = nav.goToSearchEmployee();
         screenshot.take("edit_01_search_page");
 
@@ -35,14 +31,15 @@ public class SearchEmployeeTest extends BaseTest {
         searchPage.editEmployeeName();
         screenshot.take("edit_06_name_updated");
 
+        searchPage.fillRequiredEditFields();
+        screenshot.take("edit_07_required_fields_filled");
+
         searchPage.saveEmployeeEdit();
-        screenshot.take("edit_07_saved");
+        screenshot.take("edit_08_saved");
 
         boolean success = searchPage.isSuccessMessageVisible("Employee Details Updated Successfully");
         if (success) {
             screenshot.takeOnSuccess("editEmployee");
-        } else {
-            screenshot.takeOnFailure("editEmployee");
         }
 
         Assert.assertTrue(success, "Edit Employee: success message not found");
@@ -55,8 +52,6 @@ public class SearchEmployeeTest extends BaseTest {
     // ---------------------------------------------------------------
     @Test
     public void editCampaignAssignment() {
-        ScreenshotHelper screenshot = new ScreenshotHelper(page);
-        NavigationHelper nav = new NavigationHelper(page);
         SearchEmployeePage searchPage = nav.goToSearchEmployee();
         screenshot.take("campaign_01_search_page");
 
@@ -81,8 +76,6 @@ public class SearchEmployeeTest extends BaseTest {
         boolean success = searchPage.isSuccessMessageVisible("Employee Details Updated Successfully");
         if (success) {
             screenshot.takeOnSuccess("editCampaignAssignment");
-        } else {
-            screenshot.takeOnFailure("editCampaignAssignment");
         }
 
         Assert.assertTrue(success, "Edit Campaign Assignment: success message not found");
@@ -95,8 +88,6 @@ public class SearchEmployeeTest extends BaseTest {
     // ---------------------------------------------------------------
     @Test
     public void deactivateEmployee() {
-        ScreenshotHelper screenshot = new ScreenshotHelper(page);
-        NavigationHelper nav = new NavigationHelper(page);
         SearchEmployeePage searchPage = nav.goToSearchEmployee();
         screenshot.take("deactivate_01_search_page");
 
@@ -121,12 +112,51 @@ public class SearchEmployeeTest extends BaseTest {
         boolean success = searchPage.isSuccessMessageVisible("Employee Deactivated Successfully");
         if (success) {
             screenshot.takeOnSuccess("deactivateEmployee");
-        } else {
-            screenshot.takeOnFailure("deactivateEmployee");
         }
 
         Assert.assertTrue(success, "Deactivate Employee: success message not found");
 
         searchPage.goBackToHome();
+    }
+
+    // ---------------------------------------------------------------
+    // Test Case 4 — Search and Verify Employee Appears in Results
+    // ---------------------------------------------------------------
+    @Test
+    public void searchAndVerifyEmployee() {
+        String empId = ConfigReader.get("search.emp.id");
+
+        SearchEmployeePage searchPage = nav.goToSearchEmployee();
+        screenshot.take("verify_01_search_page");
+
+        searchPage.searchEmployee(empId);
+        screenshot.take("verify_02_search_results");
+
+        // Verify a result link appears in the table — try most specific to broadest
+        String[] selectors = {
+            "table tbody tr td:first-child a",
+            "tbody tr td a",
+            "tbody a"
+        };
+
+        boolean resultFound = false;
+        for (String sel : selectors) {
+            int count = page.locator(sel).count();
+            System.out.println("[SearchVerify] Selector '" + sel + "' count: " + count);
+            if (count > 0) {
+                resultFound = true;
+                System.out.println("[SearchVerify] Result link found with: " + sel);
+                break;
+            }
+        }
+
+        screenshot.take("verify_03_result_check");
+
+        if (resultFound) {
+            screenshot.takeOnSuccess("searchAndVerifyEmployee");
+        }
+
+        Assert.assertTrue(resultFound,
+                "Employee '" + empId + "' result link not found in search results table");
     }
 }
