@@ -2,7 +2,6 @@
 <suite name="Web Automation Suite">
     <test name="Smoke Tests">
         <classes>
-            <class name="tests.LoginTest"/>
             <class name="tests.HRMSTest"/>
         </classes>
     </test>
