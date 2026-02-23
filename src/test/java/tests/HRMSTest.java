@@ -3,9 +3,9 @@ package tests;
 import base.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import pages.HomePage;
 import pages.HRMSPage;
 import utils.ConfigReader;
+import utils.NavigationHelper;
 import utils.ScreenshotHelper;
 
 public class HRMSTest extends BaseTest {
@@ -14,11 +14,9 @@ public class HRMSTest extends BaseTest {
     public void createNewEmployee() {
         ScreenshotHelper screenshot = new ScreenshotHelper(page);
 
-        HomePage homePage = new HomePage(page);
-        homePage.navigateToCreateUser();
+        NavigationHelper nav = new NavigationHelper(page);
+        HRMSPage hrmsPage = nav.goToCreateEmployee();
         screenshot.take("01_hrms_form_opened");
-
-        HRMSPage hrmsPage = new HRMSPage(page);
 
         // All values come from config.properties
         hrmsPage.fillLoginDetails(
