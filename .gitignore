@@ -1,6 +1,3 @@
-# Maven build output
-target/
-
 # Claude local settings
 .claude/
 
